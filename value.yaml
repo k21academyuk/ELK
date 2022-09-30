@@ -1,0 +1,26 @@
+replicas: 1
+minimumMasterNodes: 1
+#image: docker.elastic.co/elasticsearch/elasticsearch:8.4.2
+
+volumeClaimTemplate:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+extraInitContainers: |
+   - name: create
+     image: busybox:1.35.0
+     command: ['mkdir', '-p', '/usr/share/elasticsearch/data/nodes/']
+     securityContext:
+       runAsUser: 0
+     volumeMounts:
+      - mountPath: /usr/share/elasticsearch/data
+        name: elasticsearch-master
+   - name: file-permissions
+     image: busybox:1.35.0
+     command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/']
+     securityContext:
+        runAsUser: 0
+     volumeMounts:
+      - mountPath: /usr/share/elasticsearch/data
+        name: elasticsearch-master
